@@ -11,12 +11,24 @@ import DNAModel from "@/components/dna-model"
 
 export default function Home() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [user, setUser] = useState<{ firstName?: string } | null>(null)
 
   useEffect(() => {
     const checkAuth = () => {
       const token = localStorage.getItem('token')
-      const user = localStorage.getItem('user')
-      setIsAuthenticated(!!(token && user))
+      const userStr = localStorage.getItem('user')
+      if (token && userStr) {
+        setIsAuthenticated(true)
+        try {
+          const userData = JSON.parse(userStr)
+          setUser(userData)
+        } catch (error) {
+          console.error('Error parsing user data:', error)
+        }
+      } else {
+        setIsAuthenticated(false)
+        setUser(null)
+      }
     }
 
     checkAuth()
@@ -49,7 +61,9 @@ export default function Home() {
             <div className="animate-fade-in-up">
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 text-white">
                 {isAuthenticated ? (
-                  "Welcome to Your Learning Journey"
+                  <>
+                    Welcome{user?.firstName ? `, ${user.firstName}` : ''} to Your Learning Journey
+                  </>
                 ) : (
                   "From 2D to 3D—we make ideas <span className='text-accent animate-pulse-subtle'>pop off the page</span>"
                 )}
