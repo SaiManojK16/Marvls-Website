@@ -37,44 +37,41 @@ export default function LoginPage() {
     setError("")
 
     try {
-      console.log('Attempting to login...')
-      const response = await authAPI.login({
-        email: formData.email,
-        password: formData.password
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: formData.email, password: formData.password }),
       })
-      console.log('Login response:', response)
 
-      if (response.success && response.data) {
-        console.log('Login successful, storing user data...')
-        // Store token in localStorage
-        localStorage.setItem('token', response.data.token)
-        
-        // Store user data
-        const userData = {
-          _id: response.data._id,
-          name: response.data.name,
-          email: response.data.email,
-          userType: response.data.userType,
-          role: response.data.role
-        }
-        console.log('Storing user data:', userData)
-        localStorage.setItem('user', JSON.stringify(userData))
+      const data = await response.json()
 
-        // Show success toast
-        toast({
-          title: "Welcome back!",
-          description: "You have successfully logged in.",
-        })
-
-        // Redirect to home page
-        router.push("/")
-      } else {
-        throw new Error(response.message || 'Login failed')
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "Login failed")
       }
-    } catch (error) {
-      console.error('Login error:', error)
-      setError(error instanceof Error ? error.message : 'Login failed')
 
+      // Store the token and user data
+      localStorage.setItem("token", data.data.token)
+      localStorage.setItem("user", JSON.stringify({
+        _id: data.data._id,
+        name: data.data.name,
+        email: data.data.email,
+        userType: data.data.userType,
+        role: data.data.role
+      }))
+
+      // Dispatch auth change event
+      window.dispatchEvent(new Event('authStateChange'))
+
+      // Show success toast
+      toast({
+        title: "Welcome back!",
+        description: "You have successfully logged in.",
+      })
+
+      // Redirect to home page
+      router.push("/")
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Login failed")
       // Show error toast
       toast({
         variant: "destructive",
