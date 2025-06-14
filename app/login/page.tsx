@@ -9,9 +9,11 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { authAPI } from "@/lib/api"
 import { Eye, EyeOff } from "lucide-react"
+import { useToast } from "@/hooks/use-toast"
 
 export default function LoginPage() {
   const router = useRouter()
+  const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const [showPassword, setShowPassword] = useState(false)
@@ -58,14 +60,27 @@ export default function LoginPage() {
         console.log('Storing user data:', userData)
         localStorage.setItem('user', JSON.stringify(userData))
 
-        // Force a page reload to update the navbar
-        window.location.href = '/'
+        // Show success toast
+        toast({
+          title: "Welcome back!",
+          description: "You have successfully logged in.",
+        })
+
+        // Redirect to home page
+        router.push("/")
       } else {
         throw new Error(response.message || 'Login failed')
       }
     } catch (error) {
       console.error('Login error:', error)
       setError(error instanceof Error ? error.message : 'Login failed')
+
+      // Show error toast
+      toast({
+        variant: "destructive",
+        title: "Login failed",
+        description: error instanceof Error ? error.message : "Please try again",
+      })
     } finally {
       setIsLoading(false)
     }
