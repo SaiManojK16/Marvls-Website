@@ -43,10 +43,14 @@ export async function connectToDatabase() {
         connectTimeoutMS: 10000, // Give up initial connection after 10 seconds
         retryWrites: true,
         retryReads: true,
+        authSource: 'admin', // Use admin database for authentication
+        ssl: true, // Use SSL
       };
 
       console.log('Connecting to MongoDB...');
-      console.log('MongoDB URI:', (MONGODB_URI as string).replace(/\/\/[^:]+:[^@]+@/, '//****:****@')); // Log URI without credentials
+      // Log connection attempt (without credentials)
+      const sanitizedUri = (MONGODB_URI as string).replace(/\/\/[^:]+:[^@]+@/, '//****:****@');
+      console.log('MongoDB URI:', sanitizedUri);
 
       cached.promise = mongoose.connect(MONGODB_URI as string, opts)
         .then((mongoose) => {
@@ -55,6 +59,14 @@ export async function connectToDatabase() {
         })
         .catch((error) => {
           console.error('MongoDB connection error:', error);
+          // Log more detailed error information
+          if (error.name === 'MongoServerSelectionError') {
+            console.error('Could not connect to MongoDB server. Please check your network connection and server status.');
+          } else if (error.name === 'MongoParseError') {
+            console.error('Invalid MongoDB connection string. Please check your MONGODB_URI format.');
+          } else if (error.name === 'MongoError') {
+            console.error('MongoDB error:', error.message);
+          }
           throw error;
         });
     }
