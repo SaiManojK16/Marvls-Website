@@ -55,10 +55,11 @@ export async function POST(request: Request) {
       { message: 'User registered successfully', user: userResponse },
       { status: 201 }
     );
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Registration error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
     return NextResponse.json(
-      { message: 'Error registering user', error: error?.message || error },
+      { message: 'Error registering user', error: errorMessage },
       { status: 500 }
     );
   }
