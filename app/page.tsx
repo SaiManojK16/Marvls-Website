@@ -65,7 +65,9 @@ export default function Home() {
                     Welcome{user?.firstName ? `, ${user.firstName}` : ''} to Your Learning Journey
                   </>
                 ) : (
-                  "From 2D to 3D—we make ideas <span className='text-accent animate-pulse-subtle'>pop off the page</span>"
+                  <>
+                    From 2D to 3D—we make ideas <span className="text-accent animate-pulse-subtle">pop off the page</span>
+                  </>
                 )}
               </h1>
               <p className="text-xl md:text-2xl text-white/80 mb-8 animate-fade-in" style={{ animationDelay: "0.2s" }}>
