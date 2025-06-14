@@ -1,3 +1,6 @@
+"use client"
+
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { ArrowRight, BookOpen, CuboidIcon as Cube, Microscope, Smartphone, Star, Wrench } from "lucide-react"
@@ -7,6 +10,18 @@ import AtomModel from "@/components/atom-model"
 import DNAModel from "@/components/dna-model"
 
 export default function Home() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+
+  useEffect(() => {
+    const checkAuth = () => {
+      const token = localStorage.getItem('token')
+      const user = localStorage.getItem('user')
+      setIsAuthenticated(!!(token && user))
+    }
+
+    checkAuth()
+  }, [])
+
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section with 3D Atom Model */}
@@ -33,20 +48,43 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div className="animate-fade-in-up">
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 text-white">
-                From 2D to 3D—we make ideas <span className="text-accent animate-pulse-subtle">pop off the page</span>
+                {isAuthenticated ? (
+                  "Welcome to Your Learning Journey"
+                ) : (
+                  "From 2D to 3D—we make ideas <span className='text-accent animate-pulse-subtle'>pop off the page</span>"
+                )}
               </h1>
               <p className="text-xl md:text-2xl text-white/80 mb-8 animate-fade-in" style={{ animationDelay: "0.2s" }}>
-                Creating tools that turn flat content into immersive experiences.
+                {isAuthenticated ? (
+                  "Explore our products and start your immersive learning experience today."
+                ) : (
+                  "Creating tools that turn flat content into immersive experiences."
+                )}
               </p>
               <div className="flex flex-col sm:flex-row gap-4 animate-fade-in" style={{ animationDelay: "0.4s" }}>
-                <Button size="lg" className="bg-accent text-black hover:bg-accent/90 animate-bounce-subtle" asChild>
-                  <Link href="/signup">Get Started</Link>
-                </Button>
-                <Button size="lg" variant="outline" className="text-foreground border-foreground hover:bg-foreground/10" asChild>
-                  <Link href="/showcase">
-                    View Demos <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
+                {isAuthenticated ? (
+                  <>
+                    <Button size="lg" className="bg-accent text-black hover:bg-accent/90 animate-bounce-subtle" asChild>
+                      <Link href="/products">View Products</Link>
+                    </Button>
+                    <Button size="lg" variant="outline" className="text-foreground border-foreground hover:bg-foreground/10" asChild>
+                      <Link href="/contact">
+                        Contact Us <ArrowRight className="ml-2 h-4 w-4" />
+                      </Link>
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button size="lg" className="bg-accent text-black hover:bg-accent/90 animate-bounce-subtle" asChild>
+                      <Link href="/signup">Get Started</Link>
+                    </Button>
+                    <Button size="lg" variant="outline" className="text-foreground border-foreground hover:bg-foreground/10" asChild>
+                      <Link href="/showcase">
+                        View Demos <ArrowRight className="ml-2 h-4 w-4" />
+                      </Link>
+                    </Button>
+                  </>
+                )}
               </div>
             </div>
             <div className="relative h-[400px] md:h-[500px] w-full rounded-lg overflow-hidden animate-fade-in-right">
