@@ -11,8 +11,11 @@ declare global {
   var mongoose: MongooseCache | undefined;
 }
 
-// Hardcoded MongoDB URI since we can't use Vercel environment variables
-const MONGODB_URI = 'mongodb+srv://SaiManojK:Manoj1609@cluster0.0mvk9.mongodb.net/marvls?retryWrites=true&w=majority';
+const MONGODB_URI = process.env.MONGODB_URI;
+
+if (!MONGODB_URI) {
+  throw new Error('Please define the MONGODB_URI environment variable');
+}
 
 // Initialize the cache
 const cached: MongooseCache = global.mongoose || { conn: null, promise: null };
@@ -46,10 +49,10 @@ export async function connectToDatabase() {
 
       console.log('Connecting to MongoDB...');
       // Log connection attempt (without credentials)
-      const sanitizedUri = MONGODB_URI.replace(/\/\/[^:]+:[^@]+@/, '//****:****@');
+      const sanitizedUri = (MONGODB_URI as string).replace(/\/\/[^:]+:[^@]+@/, '//****:****@');
       console.log('MongoDB URI:', sanitizedUri);
 
-      cached.promise = mongoose.connect(MONGODB_URI, opts)
+      cached.promise = mongoose.connect(MONGODB_URI as string, opts)
         .then((mongoose) => {
           console.log('MongoDB connected successfully');
           return mongoose;
