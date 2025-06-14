@@ -50,7 +50,7 @@ export default function LoginPage() {
         }
         localStorage.setItem('user', JSON.stringify(userData))
 
-        // Redirect to home page
+        // Redirect to home page using router
         router.push('/')
       } else {
         throw new Error(response.message || 'Login failed')
