@@ -91,14 +91,20 @@ export async function POST(request: Request) {
 
     // Return token and user data in the expected format
     return NextResponse.json({
-      token,
-      user: userResponse
+      success: true,
+      data: {
+        token,
+        ...userResponse
+      }
     }, { status: 200 });
 
   } catch (error) {
     console.error('Login error:', error);
     return NextResponse.json(
-      { message: 'An error occurred during login' },
+      { 
+        success: false,
+        message: 'An error occurred during login' 
+      },
       { status: 500 }
     );
   }

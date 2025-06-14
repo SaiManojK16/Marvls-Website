@@ -41,6 +41,10 @@ export const authAPI = {
         throw new Error(responseData.message || 'Login failed');
       }
 
+      if (!responseData.success) {
+        throw new Error(responseData.message || 'Login failed');
+      }
+
       return responseData;
     } catch (error) {
       console.error('Login error:', error);

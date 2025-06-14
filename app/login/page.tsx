@@ -50,8 +50,8 @@ export default function LoginPage() {
         }
         localStorage.setItem('user', JSON.stringify(userData))
 
-        // Force a page reload to update the navbar
-        window.location.href = "/"
+        // Redirect to home page
+        router.push('/')
       } else {
         throw new Error(response.message || 'Login failed')
       }
