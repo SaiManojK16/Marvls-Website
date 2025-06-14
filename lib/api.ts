@@ -1,4 +1,5 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
+// Use relative URLs for Next.js API routes
+const API_URL = '/api';
 
 // Auth API calls
 export const authAPI = {
