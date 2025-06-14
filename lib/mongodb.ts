@@ -1,15 +1,28 @@
 import mongoose from 'mongoose';
 
+// Define the type for our mongoose cache
+interface MongooseCache {
+  conn: typeof mongoose | null;
+  promise: Promise<typeof mongoose> | null;
+}
+
+// Extend the global type to include our mongoose cache
+declare global {
+  var mongoose: MongooseCache | undefined;
+}
+
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://saimanojk:saimanoj@cluster0.0mvk9.mongodb.net/marvls';
 
 if (!MONGODB_URI) {
   throw new Error('Please define the MONGODB_URI environment variable inside .env.local');
 }
 
-let cached = global.mongoose;
+// Initialize the cache
+const cached: MongooseCache = global.mongoose || { conn: null, promise: null };
 
-if (!cached) {
-  cached = global.mongoose = { conn: null, promise: null };
+// Set the global cache if it doesn't exist
+if (!global.mongoose) {
+  global.mongoose = cached;
 }
 
 export async function connectToDatabase() {
