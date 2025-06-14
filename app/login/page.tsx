@@ -7,13 +7,10 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { authAPI } from "@/lib/api"
 import { Eye, EyeOff } from "lucide-react"
-import { useToast } from "@/hooks/use-toast"
 
 export default function LoginPage() {
   const router = useRouter()
-  const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const [showPassword, setShowPassword] = useState(false)
@@ -50,34 +47,22 @@ export default function LoginPage() {
       }
 
       // Store the token and user data
-      localStorage.setItem("token", data.data.token)
-      localStorage.setItem("user", JSON.stringify({
+      const userData = {
         _id: data.data._id,
         name: data.data.name,
         email: data.data.email,
         userType: data.data.userType,
         role: data.data.role
-      }))
+      }
 
-      // Dispatch auth change event
-      window.dispatchEvent(new Event('authStateChange'))
+      // Update localStorage
+      localStorage.setItem("token", data.data.token)
+      localStorage.setItem("user", JSON.stringify(userData))
 
-      // Show success toast
-      toast({
-        title: "Welcome back!",
-        description: "You have successfully logged in.",
-      })
-
-      // Redirect to home page
-      router.push("/")
+      // Force a hard refresh to ensure all components update
+      window.location.href = "/"
     } catch (error) {
       setError(error instanceof Error ? error.message : "Login failed")
-      // Show error toast
-      toast({
-        variant: "destructive",
-        title: "Login failed",
-        description: error instanceof Error ? error.message : "Please try again",
-      })
     } finally {
       setIsLoading(false)
     }
