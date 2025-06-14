@@ -35,15 +35,28 @@ export async function connectToDatabase() {
     if (!cached.promise) {
       const opts = {
         bufferCommands: false,
-        serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
-        socketTimeoutMS: 45000, // Close sockets after 45s of inactivity
+        serverSelectionTimeoutMS: 5000,
+        socketTimeoutMS: 45000,
+        family: 4, // Use IPv4, skip trying IPv6
+        maxPoolSize: 10, // Maintain up to 10 socket connections
+        minPoolSize: 5, // Maintain at least 5 socket connections
+        connectTimeoutMS: 10000, // Give up initial connection after 10 seconds
+        retryWrites: true,
+        retryReads: true,
       };
 
       console.log('Connecting to MongoDB...');
-      cached.promise = mongoose.connect(MONGODB_URI as string, opts).then((mongoose) => {
-        console.log('MongoDB connected successfully');
-        return mongoose;
-      });
+      console.log('MongoDB URI:', (MONGODB_URI as string).replace(/\/\/[^:]+:[^@]+@/, '//****:****@')); // Log URI without credentials
+
+      cached.promise = mongoose.connect(MONGODB_URI as string, opts)
+        .then((mongoose) => {
+          console.log('MongoDB connected successfully');
+          return mongoose;
+        })
+        .catch((error) => {
+          console.error('MongoDB connection error:', error);
+          throw error;
+        });
     }
 
     try {
@@ -53,6 +66,19 @@ export async function connectToDatabase() {
       console.error('MongoDB connection error:', e);
       throw new Error(`Failed to connect to MongoDB: ${e.message}`);
     }
+
+    // Add connection event listeners
+    mongoose.connection.on('error', (err) => {
+      console.error('MongoDB connection error:', err);
+    });
+
+    mongoose.connection.on('disconnected', () => {
+      console.log('MongoDB disconnected');
+    });
+
+    mongoose.connection.on('reconnected', () => {
+      console.log('MongoDB reconnected');
+    });
 
     return cached.conn;
   } catch (error: any) {
