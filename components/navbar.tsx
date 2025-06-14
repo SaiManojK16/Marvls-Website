@@ -33,31 +33,42 @@ export default function Navbar() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
+        console.log('Checking authentication...');
         // First check localStorage
         const storedUser = localStorage.getItem('user');
         const token = localStorage.getItem('token');
         
+        console.log('Stored user:', storedUser);
+        console.log('Token exists:', !!token);
+        
         if (token && storedUser) {
+          const parsedUser = JSON.parse(storedUser);
+          console.log('Setting authenticated state with stored user:', parsedUser);
           setIsAuthenticated(true);
-          setUser(JSON.parse(storedUser));
+          setUser(parsedUser);
           setLoading(false);
           return;
         }
 
         // If no stored data, try to get from API
         if (token) {
+          console.log('Fetching user data from API...');
           const userData = await authAPI.getCurrentUser();
+          console.log('API user data:', userData);
+          
           if (userData) {
             setIsAuthenticated(true);
             setUser(userData);
             localStorage.setItem('user', JSON.stringify(userData));
           } else {
+            console.log('No user data from API, clearing auth state');
             setIsAuthenticated(false);
             setUser(null);
             localStorage.removeItem('token');
             localStorage.removeItem('user');
           }
         } else {
+          console.log('No token found, clearing auth state');
           setIsAuthenticated(false);
           setUser(null);
         }
@@ -76,12 +87,16 @@ export default function Navbar() {
   }, []);
 
   const handleLogout = () => {
+    console.log('Logging out...');
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     setIsAuthenticated(false);
     setUser(null);
     router.push('/');
   }
+
+  // Add a debug log for render
+  console.log('Navbar render state:', { isAuthenticated, user, loading });
 
   return (
     <header
@@ -200,18 +215,25 @@ export default function Navbar() {
                         {user.name || user.email || "Profile"}
                       </Link>
                     </Button>
-                    <Button variant="destructive" className="w-full" onClick={() => { handleLogout(); setIsOpen(false); }}>
+                    <Button 
+                      variant="outline" 
+                      className="w-full text-red-600 hover:text-red-700"
+                      onClick={() => {
+                        handleLogout();
+                        setIsOpen(false);
+                      }}
+                    >
                       Logout
                     </Button>
                   </>
                 ) : (
                   <>
-                    <Button variant="outline" asChild className="w-full">
+                    <Button variant="outline" className="w-full" asChild>
                       <Link href="/login" onClick={() => setIsOpen(false)}>
                         Log In
                       </Link>
                     </Button>
-                    <Button asChild className="w-full">
+                    <Button className="w-full" asChild>
                       <Link href="/signup" onClick={() => setIsOpen(false)}>
                         Sign Up
                       </Link>

@@ -37,6 +37,7 @@ export default function LoginPage() {
       console.log('Login response:', response)
 
       if (response.success && response.data) {
+        console.log('Login successful, storing user data...')
         // Store token in localStorage
         localStorage.setItem('token', response.data.token)
         
@@ -48,10 +49,11 @@ export default function LoginPage() {
           userType: response.data.userType,
           role: response.data.role
         }
+        console.log('Storing user data:', userData)
         localStorage.setItem('user', JSON.stringify(userData))
 
-        // Redirect to home page using router
-        router.push('/')
+        // Force a page reload to update the navbar
+        window.location.href = '/'
       } else {
         throw new Error(response.message || 'Login failed')
       }
